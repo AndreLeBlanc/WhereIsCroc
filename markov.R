@@ -5,7 +5,7 @@ calcProb = function(mean,dev,obs) {
   sqdev=sqrt(dev)
   upper=mean+abs(mean-obs)
   lower=mean-abs(mean-obs)
-  return(pnorm(upper,mean,sqdev)-pnorm(lower,mean,sqdev))
+  return(1-(pnorm(upper,mean,sqdev)-pnorm(lower,mean,sqdev)))
 }
 
 distribution = function(mat,obs) {
@@ -58,6 +58,8 @@ forward = function(prevF,trans,obs) {
     
     forwDist[[i]]=forw*obs[[i]]
   }
+  
+  return(forwDist)
 }
 
 findNode = function(forw) {
@@ -78,12 +80,13 @@ findNode = function(forw) {
 markovMoves = function(moveInfo,readings,positions,edges,probs) {
   trans=transitionMatrix()
   prevF=NULL
-  mem<-moveInfo$men
-  if(length(mem)==0) {
-    mem[[1]]<-trans
+  memInt<-moveInfo$mem
+  if(length(memInt)==0) {
+    memInt=list(rep(0,2))
+    memInt[[1]]<-trans
   }
   else {
-    prevF=mem[[2]]
+    prevF=memInt[[2]]
   }
   
   salDist=distribution(probs$salinity,readings[[1]])
@@ -94,13 +97,15 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   obs=normalize(sumDist)
   forwDist=forward(prevF,trans,obs)
   node=findNode(forwDist)
-
+  print(paste("Croc at:", node))
   norm=normalize(forwDist)
-  mem[[2]]<-norm
-  moveInfo$mem=mem
-
-  #then use A* to find node  
-  return(randomWC(moveInfo,readings,positions,edges,probs))
+  memInt[[2]]<-norm
+  
+  rmove=c(sample(getOptions(positions[3],edges),1),0)
+  moveInfo$mem=memInt
+  moveInfo$moves=rmove
+  return(moveInfo)
+  #return(randomWC(moveInfo,readings,positions,edges,probs))
 }
 
 transitionMatrix = function() {
