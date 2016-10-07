@@ -1,70 +1,59 @@
 # Calculates the Euclidean distance between two points.
-euclideanD = function(srcX, srcY, destX, destY) {
-  a = abs(srcX - destX) ^ 2
-  b = abs(srcY - destY) ^ 2
-  c = sqrt(a + b)
-  return (c)
+euclidean = function(src,dest) {
+  # a=abs(src[[1]])^2
+  # b=abs(src[[2]])^2
+  # c=sqrt(a+b)
+  # return(c)
+  return(0)
 }
-
 
 # Calculate the f(n) value for A* of a node.
-nodeVal = function(roads, src, srcX, srcY, destX, destY) {
-  cost=1
-  heuristic=manhattanD(srcX, srcY, destX, destY)
-  return (list(g = cost, h = heuristic))
+nodeVal = function(src,curr,dest,dist) {
+  cost=dist
+  heuristic=euclidean(src,dest)
+  return(list(f=cost+heuristic,g=cost,h=heuristic))
 }
 
+createNode = function(src,curr,f) {
+  return(list(list(f=f,node=curr,prev=src)))
+}
 
 # Insert a f(n) value of a node into the sorted frontier list.
-insertFrontier = function(frontier, f, x, y) {
-  i = 1
-  insert = F
-  len = length(frontier)
+insertFrontier = function(frontier,node) {
+  insert=F
+  len=length(frontier)
   
-  while (i <= len) {
-    e = frontier[[i]]
-    if (f < e[[1]]) {
-      frontier = append(frontier, list(list(f, x, y)), after = (i - 1))
-      insert = T
+  for(i in 1:len) {
+    e=frontier[[i]]
+    if (f<e$f) {
+      frontier=append(frontier,node,after=(i-1))
+      insert=T
       break
-    }
-    i = i + 1
+    }    
   }
-
   if (!insert) {
-    frontier = append(frontier, list(list(f, x, y)))
+    frontier = append(frontier,node)
   }
   
-  return (frontier)
+  return(frontier)
 }
 
 # Traverse the graph from the destination to the start to determine the path the A* algorithm found.
-traverseArrow = function(mat, dest) {
-  prev = mat[[dest[[1]], dest[[2]]]]
-  curr = prev
-  arr = curr$arrow
-  
-  if (arr[[1]] == 0) {
-    return (prev$arrow)
+traverse = function(graph,dest) {
+  curr=graph[[dest]]
+  prev=curr$prev
+  if(prev==0) {
+    return(dest)
   }
-
-  depth = 1  
-  while (T) {
-    temp = mat[[arr[[1]], arr[[2]]]]
-    arr = temp$arrow
-    if (arr[[1]] == 0) {
-      if (depth == 1) {
-        return (dest)
-      }
-      return (prev$arrow)
+  while(T) {
+    temp=prev
+    curr=graph[[prev]]
+    prev=curr$prev
+    if(arr==0) {
+      return(temp)
     }
-    
-    prev = curr
-    curr = temp
-    depth = depth + 1
   }
-  
-  return (NULL)
+  return(0)
 }
 
 astar = function(tree,edges,src,dest) {
@@ -73,15 +62,22 @@ astar = function(tree,edges,src,dest) {
   numEdges=length(edgeNodes)
   graph=list(rep(0,numNodes))
   frontier=list()
+  root=createNode(0,src,0)
+  graph[[src]]=root
   
   curr=src
   dist=1
   while(curr!=dest) {
     for(i in 1:numEdges) {
-      node=edgeNodes[[i]]
-      val=nodeVal(edges,src,node,dist)
+      edge=edgeNodes[[i]]
+      val=nodeVal(src,edge,dest,dist)
+      node=createNode(src,edge,val)
       insertFrontier(frontier,node,val)
-      graph[[i]]=val
+      
+      old=graph[[i]]
+      if(old==0 | old$f<node$f) {
+        graph[[i]]=node 
+      }
     }
     curr=frontier[[1]]
     frontier=frontier[-1]
