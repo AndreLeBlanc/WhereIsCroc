@@ -1,13 +1,7 @@
-source("WheresCroc.R")
+source("astar.R")
 
-# Probablity of any of the crocodiles 3 readings are calculated as such:
-# 1. Choose 1 of the readings.
-# 2. For every node in the graph, extract the corresponding mean and std for 
-#    the reading picked in step 1.
-# 3. Call the function below for every node, where obs is the croc's reading.
-#    -Ex. probability(150,10,138) = 0.1236787
-#    -That correspondes to the probablity of a normal distributed variable being
-#     within the interval [obs+sqrt(dev), obs-sqrt(dev)].
+# Calculates normal distribution probablity of obs within the 
+# interval [obs-sqrt(dev), obs+sqrt(dev)].
 probability = function(mean,dev,obs) {
   sqdev=sqrt(dev)
   upper=obs+sqdev
@@ -51,7 +45,7 @@ normalize = function(sumDist) {
   return(norm)
 }
 
-forward = function(prevF,trans,obs) {
+forward = function(prevf,trans,obs) {
   len=length(trans)
   forwDist=list(rep(0,len))
   for(i in 1:len) {
@@ -62,12 +56,11 @@ forward = function(prevF,trans,obs) {
     
     for(k in 1:numEdges) {
       pss=1
-      if(!is.null(prevF)) {
-        pss=prevF[[ edges[[k]] ]]
+      if(!is.null(prevf)) {
+        pss=prevf[[ edges[[k]] ]]
       }
       forw=forw+pss*val
     }
-    
     forwDist[[i]]=forw*obs[[i]]
   }
   
@@ -90,33 +83,28 @@ findNode = function(forw) {
 }
 
 markovMoves = function(moveInfo,readings,positions,edges,probs) {
-  trans=transitionMatrix()
-  prevF=NULL
-  memInt<-moveInfo$mem
-  if(length(memInt)==0) {
-    memInt=list(rep(0,2))
-    memInt[[1]]<-trans
+  mem=moveInfo$mem
+  if(length(mem)==0) {
+    mem=list(trans=transitionMatrix(),points=getPoints(),prevf=NULL)
   }
-  else {
-    prevF=memInt[[2]]
-  }
-  
+
   salDist=distribution(probs$salinity,readings[[1]])
   phoDist=distribution(probs$phosphate,readings[[2]])
   nitDist=distribution(probs$nitrogen,readings[[3]])
   
   sumDist=sumDist(salDist,phoDist,nitDist)
   obs=normalize(sumDist)
-  forwDist=forward(prevF,trans,obs)
+  forwDist=forward(mem$prevf,mem$trans,obs)
   node=findNode(forwDist)
   
-  print(paste("Croc at:", node))
+  print(paste("HMM predicts croc at: ",node))
   norm=normalize(forwDist)
-  memInt[[2]]<-norm
+  mem$prevf=norm
   
-  rmove=c(sample(getOptions(positions[3],edges),1),0)
-  moveInfo$mem=memInt
-  moveInfo$moves=rmove
+  #move=c(sample(getOptions(positions[3],edges),1),0)
+  move=astar(mem$trans,mem$points,edges,positions[[3]],node)
+  moveInfo$mem=mem
+  moveInfo$moves=move
   return(moveInfo)
   #return(randomWC(moveInfo,readings,positions,edges,probs))
 }
