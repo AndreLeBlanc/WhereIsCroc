@@ -1,17 +1,24 @@
 source("WheresCroc.R")
 
-# See page 84 in statistics book.
-calcProb = function(mean,dev,obs) {
+# Probablity of any of the crocodiles 3 readings are calculated as such:
+# 1. Choose 1 of the readings.
+# 2. For every node in the graph, extract the corresponding mean and std for 
+#    the reading picked in step 1.
+# 3. Call the function below for every node, where obs is the croc's reading.
+#    -Ex. probability(150,10,138) = 0.1236787
+#    -That correspondes to the probablity of a normal distributed variable being
+#     within the interval [obs+sqrt(dev), obs-sqrt(dev)].
+probability = function(mean,dev,obs) {
   sqdev=sqrt(dev)
-  upper=mean+abs(mean-obs)
-  lower=mean-abs(mean-obs)
-  return(1-(pnorm(upper,mean,sqdev)-pnorm(lower,mean,sqdev)))
+  upper=obs+sqdev
+  lower=obs-sqdev
+  return(pnorm(upper,mean,dev,lower.tail=TRUE)-pnorm(lower,mean,dev,lower.tail=TRUE))
 }
 
 distribution = function(mat,obs) {
   l=list(rep(0,nrow(mat)))
   for(i in 1:40) {
-    l[[i]]=calcProb(mat[[i,1]],mat[[i,2]],obs)
+    l[[i]]=probability(mat[[i,1]],mat[[i,2]],obs)
   }
   return(l)
 }
