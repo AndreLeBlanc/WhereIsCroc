@@ -24,10 +24,15 @@ distribution = function(mat,obs) {
 }
 
 sumDist = function(salDist,phoDist,nitDist) {
+  salNorm=normalize(salDist)
+  phoNorm=normalize(phoDist)
+  nitNorm=normalize(nitDist)
+  
   len=length(salDist)
   sumDist=list(rep(0,len))
   for(i in 1:len) {
-    sumDist[[i]]=salDist[[i]]+phoDist[[i]]+nitDist[[i]]
+    # sumDist[[i]]=salDist[[i]]+phoDist[[i]]+nitDist[[i]]
+    sumDist[[i]]=salNorm[[i]]*phoNorm[[i]]*nitNorm[[i]]
   }
   return(sumDist)
 }
@@ -104,6 +109,7 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   obs=normalize(sumDist)
   forwDist=forward(prevF,trans,obs)
   node=findNode(forwDist)
+  
   print(paste("Croc at:", node))
   norm=normalize(forwDist)
   memInt[[2]]<-norm
@@ -132,8 +138,8 @@ transitionMatrix = function() {
   trans=append(trans,list(list(7,11,13,18)))
   trans=append(trans,list(list(10,14,15,16)))
   trans=append(trans,list(list(11,14,15,17)))
-  trans=append(trans,list(list(12,14,16,19)))
-  trans=append(trans,list(list(15,17,18,20)))
+  trans=append(trans,list(list(12,14,16,19,22)))
+  trans=append(trans,list(list(15,17,18,19,20)))
   trans=append(trans,list(list(13,17,18,21)))
   trans=append(trans,list(list(16,17,19,20,22)))
   trans=append(trans,list(list(17,19,20,23)))
@@ -147,7 +153,7 @@ transitionMatrix = function() {
   trans=append(trans,list(list(25,26,28,31,32)))
   trans=append(trans,list(list(21,26,29,32,35)))
   trans=append(trans,list(list(27,30,31,34)))
-  trans=append(trans,list(list(27,28,30,31,34)))
+  trans=append(trans,list(list(27,28,30,31,33,34)))
   trans=append(trans,list(list(28,29,32,33,35)))
   trans=append(trans,list(list(31,32,33,35,36,37)))
   trans=append(trans,list(list(30,31,34,36,38)))
