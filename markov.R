@@ -153,6 +153,31 @@ shortestPath = function(trans,src,dest) {
   return(path[[2]])
 }
 
+heuristic = function(curr, dest) {
+  diff = abs(curr-dest)
+   if(diff <= 8) {
+    return (1)
+  }
+  else if (diff <= 14) {
+    return (2)
+  }
+  else if (diff <= 19) {
+    return (3)
+  }
+  else if (diff <= 24) {
+    return (4)
+  }
+  else if (diff <= 29) {
+    return (5)
+  }
+  else if (diff <= 34) {
+    return (6)
+  }
+  else {
+    return (7)
+  } 
+}
+
 getPath = function(trans,src,dest,dist,min,seq) {
   if(src==dest) {
     return(list(0,list(src)))
