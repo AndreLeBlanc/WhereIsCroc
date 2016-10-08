@@ -1,5 +1,3 @@
-source("astar.R")
-
 # Calculates normal distribution probablity of obs within the 
 # interval [obs-sqrt(dev), obs+sqrt(dev)].
 probability = function(mean,dev,obs) {
@@ -120,7 +118,7 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   mem$prevf=norm
   
   node=findNode(forwDist)
-  print(paste("HMM predicts croc at: ",node))
+  #print(paste("HMM predicts croc at: ",node))
   if(node!=mem$dest) {
     mem$dest=node
     mem$path=shortestPath(mem$trans,positions[[3]],node)
