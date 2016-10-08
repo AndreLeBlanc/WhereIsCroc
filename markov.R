@@ -85,7 +85,7 @@ findNode = function(forw) {
 markovMoves = function(moveInfo,readings,positions,edges,probs) {
   mem=moveInfo$mem
   if(length(mem)==0) {
-    mem=list(trans=transitionMatrix(),points=getPoints(),prevf=NULL)
+    mem=list(trans=transitionMatrix(),points=getPoints(),prevf=NULL,path=NULL,dest=0)
   }
 
   salDist=distribution(probs$salinity,readings[[1]])
@@ -95,18 +95,83 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   sumDist=sumDist(salDist,phoDist,nitDist)
   obs=normalize(sumDist)
   forwDist=forward(mem$prevf,mem$trans,obs)
-  node=findNode(forwDist)
-  
-  print(paste("HMM predicts croc at: ",node))
   norm=normalize(forwDist)
   mem$prevf=norm
   
-  #move=c(sample(getOptions(positions[3],edges),1),0)
-  move=astar(mem$trans,mem$points,edges,positions[[3]],node)
+  node=findNode(forwDist)
+  print(paste("HMM predicts croc at: ",node))
+  if(node!=mem$dest) {
+    mem$dest=node
+    mem$path=shortestPath(trans,positions[[3]],node)
+  }
+  
+  move=nextMove(mem$path,mem$dest)
+  mem$path=move[[1]]
   moveInfo$mem=mem
-  moveInfo$moves=move
+  moveInfo$moves=move[[2]]
   return(moveInfo)
-  #return(randomWC(moveInfo,readings,positions,edges,probs))
+}
+
+nextMove = function(path,dest) {
+  len=length(path)
+  if(len>=3) {
+    return(list(path[3:len],c(path[[1]],path[[2]])))
+  }
+  else if(len==2) {
+    return(list(list(),c(path[[1]],path[[2]])))
+  }
+  else if(len==1) {
+    return(list(list(),c(path[[1]],0)))
+  }
+  else {
+    return(list(list(),c(dest,0)))
+  }
+}
+
+shortestPath = function(trans,src,dest) {
+  path=getPath(trans,src,dest,1,NULL,list())
+  return(path[[2]])
+}
+
+getPath = function(trans,src,dest,dist,min,seq) {
+  if(src==dest) {
+    return(list(0,list(src)))
+  }
+  
+  l=trans[[src]]
+  found=match(dest,l)
+  if(!is.null(min)) {
+    if(length(seq)>min) {
+      return(NULL)
+    } 
+  }
+  
+  path=NULL
+  if(!is.na(found)) {
+    seq=append(seq,dest)  
+    return(list(dist,seq))
+  }
+  else {
+    numEdges=length(l)
+    for(i in 1:numEdges) {
+      if(l[[i]]==src) {}
+      else if(is.na(match(l[[i]],seq))) {
+        tseq=append(seq,l[[i]])
+        tpath=getPath(trans,l[[i]],dest,dist+1,min,tseq)
+        if(!is.null(tpath)) {
+          if(is.null(min)) {
+            path=tpath
+            min=path[[1]]
+          }
+          else if(tpath[[1]]<min) {
+            path=tpath
+            min=path[[1]]
+          }
+        }
+      }
+    }
+  }
+  return(path)
 }
 
 transitionMatrix = function() {
