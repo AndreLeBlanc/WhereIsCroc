@@ -13,7 +13,7 @@ statTourist = function(pos) {
   for(i in 1:2) {
     if(!is.na(pos[[i]])) {
       if(pos[[i]]<0) {
-        return(pos[[i]])
+        return(pos[[i]]*-1)
       } 
     } 
   }
@@ -21,11 +21,11 @@ statTourist = function(pos) {
 }
 
 distribution = function(mat,obs) {
-  l=list(rep(0,nrow(mat)))
-  for(i in 1:40) {
-    l[[i]]=probability(mat[[i,1]],mat[[i,2]],obs)
+  dist=list()
+  for(i in 1:nrow(mat)) {
+    dist[[i]]=probability(mat[[i,1]],mat[[i,2]],obs)
   }
-  return(l)
+  return(dist)
 }
 
 sumDist = function(salDist,phoDist,nitDist) {
@@ -34,7 +34,7 @@ sumDist = function(salDist,phoDist,nitDist) {
   nitNorm=normalize(nitDist)
   
   len=length(salDist)
-  sumDist=list(rep(0,len))
+  sumDist=list()
   for(i in 1:len) {
     # sumDist[[i]]=salDist[[i]]+phoDist[[i]]+nitDist[[i]]
     sumDist[[i]]=salNorm[[i]]*phoNorm[[i]]*nitNorm[[i]]
@@ -48,7 +48,7 @@ normalize = function(sumDist) {
   for(i in 1:len) {
     sum=sum+sumDist[[i]]
   }
-  norm=list(rep(0,len))
+  norm=list()
   for(i in 1:len) {
     norm[[i]]=sumDist[[i]]/sum
   }
@@ -58,7 +58,7 @@ normalize = function(sumDist) {
 
 forward = function(prevf,trans,obs) {
   len=length(trans)
-  forwDist=list(rep(0,len))
+  forwDist=list()
   for(i in 1:len) {
     edges=trans[[i]]
     numEdges=length(edges)
@@ -100,9 +100,11 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   }
 
   eaten=statTourist(positions)
-  obs=NULL
+  obs=list()
   if(eaten>0) {
-    obs=list(rep(0,length(trans)))
+    for(i in 1:length(mem$trans)) { 
+      obs[[i]]=0 
+    }
     obs[[eaten]]=1
   }
   else {
