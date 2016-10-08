@@ -121,7 +121,7 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   print(paste("HMM predicts croc at: ",node))
   if(node!=mem$dest) {
     mem$dest=node
-    mem$path=shortestPath(trans,positions[[3]],node)
+    mem$path=shortestPath(mem$trans,positions[[3]],node)
   }
   
   move=nextMove(mem$path,mem$dest)
