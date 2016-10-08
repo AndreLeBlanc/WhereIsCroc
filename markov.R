@@ -9,6 +9,17 @@ probability = function(mean,dev,obs) {
   return(pnorm(upper,mean,dev,lower.tail=TRUE)-pnorm(lower,mean,dev,lower.tail=TRUE))
 }
 
+statTourist = function(pos) {
+  for(i in 1:2) {
+    if(!is.na(pos[[i]])) {
+      if(pos[[i]]<0) {
+        return(pos[[i]])
+      } 
+    } 
+  }
+  return(0)
+}
+
 distribution = function(mat,obs) {
   l=list(rep(0,nrow(mat)))
   for(i in 1:40) {
@@ -88,12 +99,20 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
     mem=list(trans=transitionMatrix(),points=getPoints(),prevf=NULL,path=NULL,dest=0)
   }
 
-  salDist=distribution(probs$salinity,readings[[1]])
-  phoDist=distribution(probs$phosphate,readings[[2]])
-  nitDist=distribution(probs$nitrogen,readings[[3]])
+  eaten=statTourist(positions)
+  obs=NULL
+  if(eaten>0) {
+    obs=list(rep(0,length(trans)))
+    obs[[eaten]]=1
+  }
+  else {
+    salDist=distribution(probs$salinity,readings[[1]])
+    phoDist=distribution(probs$phosphate,readings[[2]])
+    nitDist=distribution(probs$nitrogen,readings[[3]])
+    sumDist=sumDist(salDist,phoDist,nitDist)
+    obs=normalize(sumDist)
+  }
   
-  sumDist=sumDist(salDist,phoDist,nitDist)
-  obs=normalize(sumDist)
   forwDist=forward(mem$prevf,mem$trans,obs)
   norm=normalize(forwDist)
   mem$prevf=norm
@@ -109,6 +128,7 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   mem$path=move[[1]]
   moveInfo$mem=mem
   moveInfo$moves=move[[2]]
+  #moveInfo$moves=c(sample(getOptions(positions[3],edges),1),0)
   return(moveInfo)
 }
 
