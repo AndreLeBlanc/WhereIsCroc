@@ -157,6 +157,9 @@ getPath = function(trans,src,dest,dist,min,seq) {
   if(src==dest) {
     return(list(0,list(src)))
   }
+  if(dist>10) {
+    return(NULL)
+  }
   
   l=trans[[src]]
   found=match(dest,l)
