@@ -1,17 +1,43 @@
-heuristic = function(src,dest,points) {
-  srcx=points[[src,1]]
-  srcy=points[[src,2]]
-  destx=points[[dest,1]]
-  desty=points[[dest,2]]
-  x=sqrt(abs(srcx-destx))
-  y=sqrt(abs(srcy-desty))
-  return(ceiling(x+y))
+#heuristic = function(src,dest,points) {
+#  srcx=points[[src,1]]
+#  srcy=points[[src,2]]
+#  destx=points[[dest,1]]
+#  desty=points[[dest,2]]
+#  x=sqrt(abs(srcx-destx))
+#  y=sqrt(abs(srcy-desty))
+#  return(ceiling(x+y))
+#}
+
+heuristic = function(curr, dest) {
+  diff = abs(curr-dest)
+  if(diff <= 8) {
+    return (1)
+  }
+  else if (diff <= 14) {
+    return (2)
+  }
+  else if (diff <= 19) {
+    return (3)
+  }
+  else if (diff <= 24) {
+    return (4)
+  }
+  else if (diff <= 29) {
+    return (5)
+  }
+  else if (diff <= 34) {
+    return (6)
+  }
+  else {
+    return (7)
+  } 
 }
 
 # Calculate the f(n) value for A* of a node.
-nodeVal = function(src,curr,dest,dist,points) {
+nodeVal = function(src,curr,dest,dist) {
   cost=dist
-  heuristic=heuristic(src,dest,points)
+  #heuristic=heuristic(src,dest,points)
+  heuristic=heuristic(curr,dest)
   return(list(f=cost+heuristic,g=cost,h=heuristic))
 }
 
@@ -43,22 +69,28 @@ insertFrontier = function(frontier,node) {
 # Traverse the graph from the destination to the start to determine the path the A* algorithm found.
 traverse = function(graph,dest) {
   curr=graph[[dest]]
-  prev=curr$prev
+  prev=curr[[3]]
   if(prev==0) {
-    return(dest)
+    return(list(dest))
+    #return(dest)
   }
+  i = 1
+  path=list()
   while(T) {
+    list[[ curr[[2]] ]]
     temp=prev
     curr=graph[[prev]]
-    prev=curr$prev
-    if(arr==0) {
-      return(temp)
+    prev=curr[[3]]
+    if(prev==0) {
+      #return(temp)
+      return(path)
     }
   }
-  return(0)
+  #return(0)
+  return(list())
 }
 
-astar = function(tree,points,edges,src,dest) {
+astar = function(tree,edges,src,dest) {
   numNodes=length(tree)
   graph=list()
   frontier=list()
@@ -72,7 +104,8 @@ astar = function(tree,points,edges,src,dest) {
     numEdges=length(edgeNodes)
     for(i in 1:numEdges) {
       edge=edgeNodes[[i]]
-      val=nodeVal(src,edge,dest,dist,points)
+      #val=nodeVal(src,edge,dest,dist,points)
+      val=nodeVal(src,edge,dest,dist)
       node=createNode(src,edge,val$f)
       frontier=insertFrontier(frontier,node)
       
@@ -92,5 +125,6 @@ astar = function(tree,points,edges,src,dest) {
   }
   
   move=traverse(graph,dest)
-  return(c(move,0))
+  #return(c(move,0))
+  return(move)
 }

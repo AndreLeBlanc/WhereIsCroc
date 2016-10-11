@@ -1,16 +1,19 @@
+source("astar.R")
+
 # Calculates normal distribution probablity of obs within the 
 # interval [obs-sqrt(dev), obs+sqrt(dev)].
 probability = function(mean,dev,obs) {
   sqdev=sqrt(dev)
-  upper=obs+sqdev
-  lower=obs-sqdev
-  #upper=obs+0.25
-  #lower=obs-0.25
+  #upper=obs+sqdev
+  #lower=obs-sqdev
+  upper=obs+0.15
+  lower=obs-0.15
   return(pnorm(upper,mean,dev,lower.tail=TRUE)-pnorm(lower,mean,dev,lower.tail=TRUE))
 }
 
 statTourist = function(pos) {
-  for(i in 1:2) {
+  #for(i in 1:2) {
+  for(i in 2:3) {
     if(!is.na(pos[[i]])) {
       if(pos[[i]]<0) {
         return(pos[[i]]*-1)
@@ -123,9 +126,12 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   #print(paste("HMM predicts croc at: ",node))
   if(node!=mem$dest) {
     mem$dest=node
-    mem$path=shortestPath(mem$trans,positions[[3]],node)
+    #mem$path=shortestPath(mem$trans,positions[[3]],node)
+    mem$path=shortestPath(mem$trans,positions[[4]],node)
+    #mem$path=astar(mem$trans,edges,positions[[3]],mem$dest)
   }
   
+  #appendData("forw.dat","croc.dat",mem$dest,positions[[1]])
   move=nextMove(mem$path,mem$dest)
   mem$path=move[[1]]
   moveInfo$mem=mem
@@ -153,31 +159,6 @@ nextMove = function(path,dest) {
 shortestPath = function(trans,src,dest) {
   path=getPath(trans,src,dest,1,NULL,list())
   return(path[[2]])
-}
-
-heuristic = function(curr, dest) {
-  diff = abs(curr-dest)
-   if(diff <= 8) {
-    return (1)
-  }
-  else if (diff <= 14) {
-    return (2)
-  }
-  else if (diff <= 19) {
-    return (3)
-  }
-  else if (diff <= 24) {
-    return (4)
-  }
-  else if (diff <= 29) {
-    return (5)
-  }
-  else if (diff <= 34) {
-    return (6)
-  }
-  else {
-    return (7)
-  } 
 }
 
 getPath = function(trans,src,dest,dist,min,seq) {

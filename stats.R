@@ -46,6 +46,31 @@ plotBox = function(fname1,fname2=NULL,xlab=NULL) {
   }
 }
 
+appendData = function(fname1,fname2,data,val) {
+  lapply(data,write,fname1,append=TRUE,ncolumns=1000)
+  lapply(val,write,fname2,append=TRUE,ncolumns=1000)
+}
+
+accuracy = function(fname1,fname2) {
+  trans=transitionMatrix()
+  
+  src1=read.csv(file=fname1,sep=",",head=TRUE)
+  src2=read.csv(file=fname2,sep=",",head=TRUE)
+  data=src1$vals
+  vals=src2$vals
+  acc=0
+  for(i in 1:length(data)) {
+    path=getPath(trans,data[[i]],vals[[i]],1,NULL,list())
+    dist=path[[1]]
+    if(dist==0) { dist=1 }
+    acc = acc+(1/dist)
+    #if(data[[i]]==vals[[i]]) {
+      #acc=acc+1
+    #}
+  }
+  return(acc/length(data))
+}
+
 # Calculate the standard deviation from data written to a file in runNtimes.
 stdDeviation = function(fname) {
   data=read.csv(file=fname,sep=",",head=TRUE)

@@ -100,7 +100,8 @@ runWheresCroc=function(makeMoves,showCroc=F,pause=1) {
     Sys.sleep(pause)
     
     readings=getReadings(positions[1],probs)
-    moveInfo=makeMoves(moveInfo,readings,positions[2:4],edges,probs)
+    #moveInfo=makeMoves(moveInfo,readings,positions[2:4],edges,probs)
+    moveInfo=makeMoves(moveInfo,readings,positions,edges,probs)
     if (length(moveInfo$moves)!=2) {
       stop("Error! Passed makeMoves function should return a vector of two elements.")
     }
