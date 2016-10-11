@@ -1,6 +1,7 @@
 croc
 croc.pdf
 
+*.DS_Store
 *~
 *#
 
