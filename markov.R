@@ -4,6 +4,8 @@ probability = function(mean,dev,obs) {
   sqdev=sqrt(dev)
   upper=obs+sqdev
   lower=obs-sqdev
+  #upper=obs+0.25
+  #lower=obs-0.25
   return(pnorm(upper,mean,dev,lower.tail=TRUE)-pnorm(lower,mean,dev,lower.tail=TRUE))
 }
 
