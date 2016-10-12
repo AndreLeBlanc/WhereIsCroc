@@ -5,7 +5,8 @@ runNtimes = function(n,fname="test.dat") {
   sum=0
   runs=list()
   for (i in 1:n) {
-    moves=runWheresCroc(markovMoves,T,0)
+    #moves=runWheresCroc(markovMoves,T,0)
+    moves=runWheresCroc(randomWC,T,0)
     runs[[i]]=moves
     sum=sum+moves
   }
