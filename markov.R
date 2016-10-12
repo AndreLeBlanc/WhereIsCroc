@@ -1,7 +1,6 @@
-source("astar.R")
+#source("astar.R")
 
-# Calculates normal distribution probablity of obs within the 
-# interval [obs-sqrt(dev), obs+sqrt(dev)].
+# Calculates normal distribution probablity of and observation.
 probability = function(mean,dev,obs) {
   sqdev=sqrt(dev)
   #upper=obs+sqdev
@@ -12,8 +11,8 @@ probability = function(mean,dev,obs) {
 }
 
 statTourist = function(pos) {
-  #for(i in 1:2) {
-  for(i in 2:3) {
+  for(i in 1:2) {
+  #for(i in 2:3) {
     if(!is.na(pos[[i]])) {
       if(pos[[i]]<0) {
         return(pos[[i]]*-1)
@@ -92,7 +91,6 @@ findNode = function(forw) {
       index=i
     }
   }
-  
   return(index)
 }
 
@@ -126,8 +124,8 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   #print(paste("HMM predicts croc at: ",node))
   if(node!=mem$dest) {
     mem$dest=node
-    #mem$path=shortestPath(mem$trans,positions[[3]],node)
-    mem$path=shortestPath(mem$trans,positions[[4]],node)
+    mem$path=shortestPath(mem$trans,positions[[3]],node)
+    #mem$path=shortestPath(mem$trans,positions[[4]],node)
     #mem$path=astar(mem$trans,edges,positions[[3]],mem$dest)
   }
   
@@ -136,7 +134,6 @@ markovMoves = function(moveInfo,readings,positions,edges,probs) {
   mem$path=move[[1]]
   moveInfo$mem=mem
   moveInfo$moves=move[[2]]
-  #moveInfo$moves=c(sample(getOptions(positions[3],edges),1),0)
   return(moveInfo)
 }
 
