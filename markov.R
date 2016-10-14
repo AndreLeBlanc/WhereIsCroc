@@ -1,4 +1,5 @@
-#source("astar.R")
+# Group 14: Joel Wallin, André Le Blanc
+# Name of function: markovMoves
 
 # Calculates normal distribution probablity of and observation.
 probability = function(mean,dev,obs) {
